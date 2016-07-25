@@ -34,7 +34,7 @@ public class Main {
         Xinhua_keywords xinhua = new Xinhua_keywords();
         //从数据库读取新闻内容
         LinkedList<Content> Contents = xinhua.getContents();
-        System.out.println(Contents.size());
+        System.out.println(Contents.size()); 
 
         //读取停用词，分词
         LinkedList<String> stopwords = getStopwords();
