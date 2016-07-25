@@ -11,7 +11,6 @@ public class Content {
     private String content;
     private LinkedList<String> words;// = new LinkedList<String>();
     private HashMap<String, Double> tfidf = new HashMap<String, Double>();
-    private HashMap<String, Double> minus_tfidf = new HashMap<String, Double>();
 
     public void setTitle(String title){
         this.title = title;
@@ -45,11 +44,4 @@ public class Content {
         return tfidf;
     }
 
-    public void setMinus_tfidf(HashMap<String, Double> minus_tfidf){
-        this.minus_tfidf = minus_tfidf;
-    }
-
-    public HashMap<String, Double> getMinus_tfidf(){
-        return minus_tfidf;
-    }
 }
