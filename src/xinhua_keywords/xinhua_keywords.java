@@ -76,7 +76,7 @@ public class Xinhua_keywords {
         }
         return Math.log(contents.size() * 1.0 / (number + 1));
     }
-    public HashMap<String, Double> getIdf(LinkedList<Content> contents){
+    public HashMap<String, Double> calIdf(LinkedList<Content> contents){
         HashMap<String, Double> idfs = new HashMap<String, Double>();
         for (Content content : contents){
             for (String word : content.getWords()){
@@ -86,5 +86,74 @@ public class Xinhua_keywords {
             }
         }
         return idfs;
+    }
+
+    public double tf(String word, LinkedList<String> words){
+        int number = 0;
+        for(String item : words)
+            if (item.equals(word))
+                number++;
+        return number * 1.0 / words.size();
+    }
+    public void calTfidf(LinkedList<Content> contents, HashMap<String, Double> idfs){
+        for (Content content : contents){
+            HashMap<String, Double> tfidf = new HashMap<String, Double>();
+            for (String word : content.getWords()){
+                if (!tfidf.containsKey(word)){
+                    tfidf.put(word, tf(word,content.getWords()) * idfs.get(word));
+                }
+            }
+            content.setTfidf(tfidf);
+            System.out.println(tfidf);
+        }
+    }
+
+    //由下面的maxTfidf调用，计算某一个词语的最大和第二大tf*idf值
+    public LinkedList<Double> maxTfidf(String word, LinkedList<Content> contents){
+        //如果词语只出现过一次，则不会有secondTfidf此时默认的为Double的最小值，和减去0基本是一样的，没有影响
+        double firstTfidf = Double.MIN_VALUE, secondTfidf = Double.MIN_VALUE;
+        for (Content content : contents){
+            if (content.getWords().contains(word)){
+                double temp = content.getTfidf().get(word);
+                if (temp > firstTfidf)
+                    firstTfidf = temp;
+                else if (temp > secondTfidf)
+                    secondTfidf = temp;
+            }
+        }
+        LinkedList<Double> maxtfidf = new LinkedList<Double>();
+        maxtfidf.add(firstTfidf);
+        maxtfidf.add(secondTfidf);
+
+        return maxtfidf;
+    }
+
+    //计算每个词语的最大和第二大tf*idf值
+    public HashMap<String, LinkedList<Double>> maxTfidf(LinkedList<Content> contents){
+        HashMap<String, LinkedList<Double>> maxTfidfs = new HashMap<String, LinkedList<Double>>();
+        for (Content content : contents){
+            for (String word : content.getWords()){
+                if (!maxTfidfs.containsKey(word)){
+                    maxTfidfs.put(word, maxTfidf(word, contents));
+                }
+            }
+        }
+        return maxTfidfs;
+    }
+    public void minusTfidf(LinkedList<Content> contents, HashMap<String, LinkedList<Double>> maxTfidfs){
+        double firstTfidf = Double.MIN_VALUE;
+        double secondTfidf = Double.MIN_VALUE;
+        for (Content content : contents){
+            for (String word : content.getWords()) {
+                firstTfidf = maxTfidfs.get(word).get(0);
+                if (Math.abs(content.getTfidf().get(word) - firstTfidf) < 0.000000001){
+                    secondTfidf = maxTfidfs.get(word).get(1);
+                    content.getTfidf().put(word, firstTfidf - secondTfidf);
+                }
+                else{
+                    content.getTfidf().put(word, content.getTfidf().get(word) - firstTfidf);
+                }
+            }
+        }
     }
 }
